@@ -1,5 +1,6 @@
-# Grape detection with yolov3
+# Grape detection with yolov5
 
 ### Install requirement: pip install -r requirements.txt:
 
-### Run demo: python demo_grape.py
+### Run demo: python3 grape_detection.py
+
