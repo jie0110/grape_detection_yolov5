@@ -5,7 +5,7 @@ import torch
 import numpy as np
 from utils.general import non_max_suppression, scale_coords, xyxy2xywh
 from utils.datasets import letterbox
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = torch.load('weights/yolov5m_grape.pt', map_location=device)['model'].float().fuse().eval()
@@ -52,26 +52,22 @@ def predict(model, img):
                     bbox_new[3] = bbox_new[3] * h
                     cv2.rectangle(img_org,(int(bbox_new[0]), int(bbox_new[1])), (int(bbox_new[2]), int(bbox_new[3])), (0,255,0), 3)
                     boxes.append(bbox_new)
+                    num_boxes += 1
 
     return img_org, num_boxes, boxes   
 
 
 def main():
-    frame_rate = 1
-    prev = 0
-    cap = cv2.VideoCapture("grape.mp4")
+    cap = cv2.VideoCapture("grape_test.mp4")
     cap.set(cv2.CAP_PROP_FPS, 1)
     while(True):
-        time_elapsed = time.time() - prev
         ret, frame = cap.read()
         if not ret:
             print("视频读取结束或出错")
             break
-        if time_elapsed > 1./frame_rate:
-            prev = time.time()
-            frame, num_boxes, boxes = predict(model, frame)
-            frame_t = cv2.putText(frame, "grapes detected: " + str(num_boxes), (00, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA, False)
-            cv2.imshow('frame',frame_t)
+        frame, num_boxes, boxes = predict(model, frame)
+        frame_t = cv2.putText(frame, "grapes detected: " + str(num_boxes), (00, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA, False)
+        cv2.imshow('frame',frame_t)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
